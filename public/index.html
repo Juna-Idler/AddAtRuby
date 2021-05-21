@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Add At Ruby</title>
+ <style>
+html,body{
+    height :100%;
+    margin:0;
+    font-size: 100%;
+    box-sizing: border-box;
+
+}
+button, input, select, textarea {
+    font-family : inherit;
+    font-size : 100%;
+}
+h1
+{
+    margin: 0px 2px;
+    font-size: 100%;
+}
+form{
+    display: block;
+    margin-bottom: 4px;
+}
+.controlarea{
+    margin: 0 8px;
+}
+
+#result_field{
+    display: block;
+}
+#response{
+    display: block;
+}
+#download
+{
+    float: right;
+    margin: 0 32px;
+}
+
+textarea{
+    box-sizing: border-box;
+    width: calc(100% - 4px);
+    resize:vertical;
+    overflow-y: scroll;
+    min-height: 3rem;
+
+    margin: 2px;
+    padding: 2px;
+}
+textarea[name="sentence"]
+{
+    height: 10rem;
+}
+textarea[name="response_text"]{
+    font-size: small;
+}
+
+textarea[name="output"]{
+    height: 10rem;
+}
+
+</style>
+</head>
+<body>
+    <h1>Add At Ruby</h1>
+    <form method="get" action="">
+        <textarea name="sentence" placeholder="漢字入りの文章を入れる"></textarea>
+        <div class="controlarea">
+            <label>Grade
+                <select name="grade">
+                    <option selected>1
+                    <option>2<option>3<option>4<option>5<option>6<option>7<option>8<option>
+                </select>
+            </label>
+            <input type="button" id="SendButton" value="送信">
+            <span style="float: right">
+            Gradeの詳細は<a href="https://developer.yahoo.co.jp/webapi/jlp/furigana/v1/furigana.html" target="_blank" rel="noopener noreferrer">Yahoo! JAPANのルビ振りページ</a>を参照
+            </span>
+        </div>
+    </form>
+
+    <div id="result_field">
+        <textarea name="response_text" placeholder="返ってきた生のxmlがここに入り"></textarea>
+        <div class="controlarea">
+            <label>parent:<input type="text" name="parent" value="｜" maxlength="10" size="4"></label>
+            <label>begin:<input type="text" name="begin" value="《" maxlength="10" size="4"></label>
+            <label>end:<input type="text" name="end" value="》" maxlength="10" size="4"></label>
+            <label>@ruby_を付与<input type="checkbox" name="addatruby" checked></label>
+        </div>
+        <textarea name="output" placeholder="処理をした文がここに入る"></textarea>
+        <button id="download">テキストファイルとしてダウンロード</button>
+    </div>
+<!-- Begin Yahoo! JAPAN Web Services Attribution Snippet -->
+<span style="margin:15px 15px 15px 15px"><a href="https://developer.yahoo.co.jp/sitemap/">Webサービス by Yahoo! JAPAN</a></span>
+<!-- End Yahoo! JAPAN Web Services Attribution Snippet -->
+
+
+<script>
+
+const send_button = document.getElementById('SendButton');
+const sentence = document.getElementsByName("sentence")[0];
+const grade = document.getElementsByName("grade")[0];
+const response_text = document.getElementsByName("response_text")[0];
+
+const ruby_parent = document.getElementsByName("parent")[0];
+const ruby_begin = document.getElementsByName("begin")[0];
+const ruby_end = document.getElementsByName("end")[0];
+const addAtRuby = document.getElementsByName("addatruby")[0];
+
+const output = document.getElementsByName("output")[0];
+
+const url = location.protocol + "//" + location.host;
+//const url = location.href;
+
+send_button.onclick = async (e)=> {
+
+    const s = sentence.value.replace(/[\f\v\u00a0\u1680\u2000\u200a\u2028\u2029\u202f\u205f\ufeff]/g," ");
+    send_button.disabled = true;
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({grade:grade.value,sentence:s})
+    });
+    const text = await response.text();
+    response_text.value = text;
+    setTimeout(()=>{send_button.disabled = false},10000);
+    translate();
+};
+
+
+function translate()
+{
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(response_text.value, "text/xml");
+
+    let elem = doc.documentElement;
+    while(elem !== null && elem.nodeName !== "WordList") {
+        elem = elem.firstElementChild;
+    }
+    if (elem === null || elem.nodeName !== "WordList")
+    {
+        output.value = "レスポンスが無効なデータです。";
+        return;
+    }
+    output.value = "";
+    const p = ruby_parent.value,b = ruby_begin.value,e = ruby_end.value;
+    for(let i = 0; i < elem.children.length;i++)
+    {
+        const word = elem.children[i];
+        const swl = word.querySelector("SubWordList");
+        if (swl)
+        {
+            for (let j= 0;j < swl.children.length;j++)
+            {
+                const subword = swl.children[j];
+                const surface = subword.querySelector("Surface");
+                const furigana = subword.querySelector("Furigana");
+                if (furigana === null || surface.textContent == furigana.textContent)
+                    output.value += surface.textContent;
+                else
+                    output.value += p + surface.textContent + b + furigana.textContent + e;
+            }
+        }
+        else
+        {
+            const surface = word.querySelector("Surface");
+            const furigana = word.querySelector("Furigana");
+            if (furigana === null || surface.textContent == furigana.textContent)
+                    output.value += surface.textContent;
+                else
+                    output.value += p + surface.textContent + b + furigana.textContent + e;
+        }
+    }
+    if (addAtRuby.checked)
+    {
+        output.value += "\n@ruby_parent=" + p + "\n@ruby_begin=" + b + "\n@ruby_end=" + e + "\n";
+    }
+}
+response_text.onchange = ruby_parent.onchange = ruby_begin.onchange = ruby_end.onchange = addAtRuby.onchange = translate;
+
+
+
+(function Download(){
+    document.getElementById('download').addEventListener('click', (e)=>{
+        e.preventDefault();
+        const text = output.value;
+        if (text === "")
+            return;
+        const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]),text], {type: 'text/plain'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        document.body.appendChild(a);
+
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = ('00' + (now.getMonth()+1)).slice(-2);
+        const d = ('00' + now.getDate()).slice(-2);
+        const h = ('00' + now.getHours()).slice(-2);
+        const mi = ('00' + (now.getMinutes()+1)).slice(-2);
+
+        a.download = "aar" + y + "-" + m + d + "-" + h + mi + '.txt';
+        a.href = url;
+
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    });
+}());
+
+</script>
+</body>
+</html>
+
+
+
