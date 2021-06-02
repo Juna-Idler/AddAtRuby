@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="utf-8">
+<title>AtRubyEditor Help</title>
+
+<style>
+    body{
+        color: black;
+        background-color: white;
+    }
+    section{
+        border-bottom: black 2px solid;
+    }
+    h2{
+        margin :4px 0px 0px;
+    }
+    h3{
+        margin :4px 0px 0px;
+    }
+    h4{
+        margin :2px 0px 0px;
+    }
+    ol{
+        margin: 2px 0px;
+    }
+
+   table {
+        border: 2px solid black;
+        border-collapse: collapse;
+        margin: 0px 2px 4px;
+    }
+    table th
+    {
+        text-align: center;
+        border: 1px solid black;
+        background-color: rgb(192, 255, 255);
+    }
+    table td
+    {
+        text-align: left;
+        border: 1px solid black;
+        padding-left: 4px;
+    }
+
+
+
+</style>
+
+</head>
+<body>
+    <section>
+    <h2>基本的な流れ</h2>
+    <ol>
+    <li>Add At Rubyの結果を[TextEdit]にコピペします。</li>
+    <li>[RubyEdit]でちまちまと編集します。</li>
+    <li>[TextEdit]に戻って全文コピーして、RhythmiKaRuTTEに貼り付けます。終わり</li>
+    </ol>
+    </section>
+
+    <section>
+    <h2>ピックアップパネル操作説明</h2>
+
+    <h3>左の部分</h3>
+    ドラッグでパネルの上下位置や横幅を変更できます。
+    <h3>上のテキスト（ルビ）</h3>
+    ルビがある場合、編集が反映されますが、空文字は反映されません。
+    <h3>下のテキスト（親文字）</h3>
+    編集が反映されますが、行の最後で無い場合、空文字は反映されません。
+    <h3>ルビの横のボタン（削除/追加）</h3>
+    ルビ文字選択時は削除でルビを削除。削除したとき隣のルビ無し文字列と自動で連結します。<BR>
+    ルビ無し文字選択時は、ルビに文字を入力して親文字のテキストを選択状態にすることで、ルビを追加できます。
+    <h3>親文字横のボタン（消去）</h3>
+    行の最後以外では通常の編集では空文字に出来ませんが、親文字を空にした状態でこれを押せば可能になります。
+    <h3>左と結合</h3>
+    隣り合っている左のルビと結合します
+    <h3>分割</h3>
+    ルビを二つに分けます。ルビ表示と親文字表示のキャレットの位置で分割します。キャレットが端だったり選択状態の場合は出来ません。
+    <h3>右と結合</h3>
+    隣り合っている右のルビと結合します
+
+    </section>
+    
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<title>ARE</title>
+<style>
+html,body{
+    height :100%;
+    margin:0;
+    font-size: 100%;
+}
+button, input, select, textarea {
+    font-family : inherit;
+    font-size : 1rem;
+}
+#Screen
+{
+    display: flex;
+    flex-direction: column;
+    height :100%;
+    padding:2px;
+    box-sizing: border-box;
+}
+
+#HelpButton
+{
+    vertical-align: middle;
+    border: black 1px solid;
+    float: right;
+    margin-right: 32px;
+    padding: 1px 8px;
+}
+#HelpSwitch,#EditOutputSwitch
+{
+    display: none;
+}
+#HelpSwitch:checked ~ #HelpOverlap
+{
+    display: block;
+}
+#HelpOverlap
+{
+    position: fixed;
+    display: none;
+    width:100%;
+    height:100%;
+    top:0;left:0;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+#HelpClose
+{
+    position: absolute;
+    right:0px;
+    top:2px;
+    font-size: 32px;
+    color: black;
+    background-color: white;
+    padding: 0px 8px;
+}
+#HelpPage
+{
+    width:100%;
+    height:100%;
+}
+
+
+#TabLabels
+{
+    flex: 0 1 auto;
+    padding-top: 2px;
+    border-bottom: 0px solid #999999;
+}
+input[name="mode_tab"]
+{
+    display: none;
+}
+.TabContent{
+    display: none;
+}
+.tab_label
+{
+    display: inline-block;
+    padding: 0px 8px;
+    margin:0px 8px;
+    border: 1px solid #000000;
+    border-bottom: 1px solid #FFFFFF;
+    background-color: #BBBBBB;
+    color: white;
+
+    text-align: center;
+    width: 30%;
+}
+#TabText:checked ~ * #TabTextLabel ,
+#TabRuby:checked ~ * #TabRubyLabel
+{
+    font-weight: bold;
+    background-color: #FFFFFF;
+    color: black;
+
+}
+#TabText:checked ~ #TextEdit ,
+#TabRuby:checked ~ #RubyEdit
+{
+    display:flex;
+}
+
+
+
+.flex_v{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.flex_h{
+    display: flex;
+    flex-direction:row;
+    justify-content: center;
+}
+.flex_item
+{
+    flex: 1 1 auto;
+}
+.flex_between
+{
+    justify-content:space-between;    
+}
+
+#TextEdit
+{
+    height :100%;
+    flex-direction: column;
+    flex: 1 1 auto;
+}    
+#TextArea
+{
+    height: 115%;
+    resize:none;
+    flex:1 1 auto;
+    margin: 0 2px 2px;
+    padding: 2px;
+    white-space: pre;
+}
+.bottom_controls_area
+{
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;        
+    flex:0 0 auto;
+}
+.bottom_controls
+{
+    padding: 0rem 2rem;
+    margin :2px 8px;
+}
+
+
+
+#RubyEdit
+{
+    flex-direction: column;
+    height: 100%;
+    flex: 1 1 auto;
+    overflow-y :hidden;
+}
+
+#LineList
+{
+    border: solid 1px black;
+    margin: 0 2px 2px;
+    overflow-y :scroll;
+
+    list-style-type:decimal-leading-zero;
+}
+
+.Line
+{
+    line-height: 2.0;
+    margin: 0px;
+}
+
+#LineList span
+{
+    border: 1px solid transparent;
+    cursor: default;
+    font-size: 1.2rem;
+    padding: 0.5rem 0 0.2rem;
+
+}
+
+#LineList .Selected
+{
+    border: blue 1px solid;
+}
+
+#LineList ruby{
+    font-size: 1.2rem;
+
+    border: 1px dashed red;
+    border-top:transparent;
+    margin: 0 1px;
+    padding: 0.5rem 1px 0.2rem;
+
+    cursor: default;
+}
+#LineList rt
+{
+    border-top: 0px dashed red;    
+}
+
+
+#PickupWindow
+{
+    position: fixed;
+    width: 50%;
+
+    border: 1px solid black;
+    padding: 1px;
+    background-color: #EEEEEE;
+}
+#PickupWindowHandle
+{
+    width: 16px;
+    flex: 0 0 auto;
+
+    background-color: #DDDDDD;
+    cursor: grab;
+}
+#RubyText
+{
+    font-size: 1rem;
+    margin: 1px;
+
+    text-align: center;
+    flex: 1 1 auto;
+
+    width:3rem;
+}
+#BaseText
+{
+    font-size: 1.2rem;
+    margin: 1px;
+
+    text-align: center;
+    flex: 1 1 auto;
+    width:3rem;
+
+}
+#RubyAddRemove,#Delete
+{
+    flex: 0 0 auto;
+    margin: 1px;
+    width: 64px;
+}
+.ruby_control_button
+{
+    margin: 1px;
+    flex: 1 1 auto;
+}
+
+
+</style>
+
+</head>
+<body>
+<div id="Screen">
+    <input type="checkbox" id="HelpSwitch">
+    <div id="HelpOverlap">
+        <label for="HelpSwitch" id="HelpClose">×</label>
+        <iframe id="HelpPage" src="help.html"></iframe>
+    </div>
+
+    <input type="radio" id="TabText" name="mode_tab" checked>
+    <input type="radio" id="TabRuby" name="mode_tab">
+    <div id="TabLabels">
+        <label for="TabText" id="TabTextLabel" class="tab_label">TextEdit</label>
+        <label for="TabRuby" id="TabRubyLabel" class="tab_label">RubyEdit</label>
+        <label for="HelpSwitch" id="HelpButton">？</label>
+    </div>
+    <div id="TextEdit" class="TabContent">
+        <textarea id="TextArea" spellcheck="false"></textarea>
+        <div class="bottom_controls_area">
+            <button id="download">テキストファイルとしてダウンロード</button>
+        </div>
+    </div>
+
+
+    <div id="RubyEdit" class="TabContent">
+        <ol id="LineList">
+        </ol>
+        <div id="PickupWindow" class="flex_h">
+            <div id="PickupWindowHandle"></div>
+            <div class="flex_v flex_item">
+                <div class="flex_h flex_item">
+                    <input type="text" id="RubyText"><input type="button" id="RubyAddRemove" value="追加" disabled>
+                </div>
+                <div class="flex_h flex_item">
+                    <input type="text" id="BaseText"><button type="button" id="Delete" value="消去" disabled>消去</button>
+                </div>
+                <div id="RubyControl" class="flex_h flex_between">
+                    <button id="UniteLeft" class="ruby_control_button" disabled>左と結合</button>
+                    <button id="Division" class="ruby_control_button" disabled>分割</button>
+                    <button id="UniteRight" class="ruby_control_button" disabled>右と結合</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+(function(){
+const params = (new URL(document.location)).searchParams;
+const input = params.get("input");
+if (input != null)
+{
+    const value = localStorage.getItem(input);
+    document.getElementById("TextArea").value = value != null ? value : "";
+}
+}());
+</script>
+
+    <script type='text/javascript' src='Ruby.js' defer></script>
+
+    <script type='text/javascript' src='Global.js' defer></script>
+
+    <script type='text/javascript' src='Mode_Ruby.js' defer></script>
+    <script type='text/javascript' src='Mode_Text.js' defer></script>
+    
+</body>
+</html>

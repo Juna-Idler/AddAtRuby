@@ -34,10 +34,11 @@ form{
 #response{
     display: block;
 }
-#download
+#download,#at_ruby_edit
 {
     float: right;
-    margin: 0 32px;
+    margin-top: 0;
+    margin-right: 32px;
 }
 
 textarea{
@@ -92,7 +93,8 @@ textarea[name="output"]{
         </div>
         <textarea name="output" placeholder="処理をした文がここに入る"></textarea>
         <button id="download">テキストファイルとしてダウンロード</button>
-    </div>
+        <button id="at_ruby_edit">編集ページに移動する</button>
+  </div>
 <!-- Begin Yahoo! JAPAN Web Services Attribution Snippet -->
 <span style="margin:15px 15px 15px 15px"><a href="https://developer.yahoo.co.jp/sitemap/">Webサービス by Yahoo! JAPAN</a></span>
 <!-- End Yahoo! JAPAN Web Services Attribution Snippet -->
@@ -210,6 +212,19 @@ response_text.onchange = ruby_parent.onchange = ruby_begin.onchange = ruby_end.o
         a.remove();
         URL.revokeObjectURL(url);
     });
+}());
+
+
+(function AtRubyEdit(){
+
+document.getElementById('at_ruby_edit').addEventListener('click', (e)=>{
+    e.preventDefault();
+
+    localStorage.setItem("add_at_ruby",output.value);
+    location.href = "AtRubyEditor?input=add_at_ruby";
+
+});
+
 }());
 
 </script>
