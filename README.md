@@ -14,3 +14,7 @@ http://juna-idler.blogspot.com/2016/05/arte-ver03.html
 
 
 Herokuでいろいろやってた時のコミットにAPPIDが残ってたのでリポジトリは一度リセットした！
+
+使用例
+https://youtu.be/vcvXMZMEjd8
+ほぼ分割しかしてないけど
