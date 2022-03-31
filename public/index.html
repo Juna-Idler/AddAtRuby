@@ -78,13 +78,13 @@ textarea[name="output"]{
             </label>
             <input type="button" id="SendButton" value="送信">
             <span style="float: right">
-            Gradeの詳細は<a href="https://developer.yahoo.co.jp/webapi/jlp/furigana/v1/furigana.html" target="_blank" rel="noopener noreferrer">Yahoo! JAPANのルビ振りページ</a>を参照
+            Gradeの詳細は<a href="https://developer.yahoo.co.jp/webapi/jlp/furigana/v2/furigana.html" target="_blank" rel="noopener noreferrer">Yahoo! JAPANのルビ振りページ</a>を参照
             </span>
         </div>
     </form>
 
     <div id="result_field">
-        <textarea name="response_text" placeholder="返ってきた生のxmlがここに入り"></textarea>
+        <textarea name="response_text" placeholder="返ってきた生のjsonがここに入り"></textarea>
         <div class="controlarea">
             <label>parent:<input type="text" name="parent" value="｜" maxlength="10" size="4"></label>
             <label>begin:<input type="text" name="begin" value="《" maxlength="10" size="4"></label>
@@ -137,45 +137,41 @@ send_button.onclick = async (e)=> {
 
 function translate()
 {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(response_text.value, "text/xml");
+    const json = JSON.parse(response_text.value);
 
-    let elem = doc.documentElement;
-    while(elem !== null && elem.nodeName !== "WordList") {
-        elem = elem.firstElementChild;
-    }
-    if (elem === null || elem.nodeName !== "WordList")
+    if (!json.result)
     {
-        output.value = "レスポンスが無効なデータです。";
+        output.value ="レスポンスが無効なデータです。:" + json.error.message;
         return;
     }
+
+    const words = json.result.word;
     output.value = "";
     const p = ruby_parent.value,b = ruby_begin.value,e = ruby_end.value;
-    for(let i = 0; i < elem.children.length;i++)
+    for(let i = 0; i < word.length;i++)
     {
-        const word = elem.children[i];
-        const swl = word.querySelector("SubWordList");
-        if (swl)
+        const word = words[i];
+        if (word.subword)
         {
-            for (let j= 0;j < swl.children.length;j++)
+            for (let j= 0;j < word.subword.length;j++)
             {
-                const subword = swl.children[j];
-                const surface = subword.querySelector("Surface");
-                const furigana = subword.querySelector("Furigana");
-                if (furigana === null || surface.textContent == furigana.textContent)
-                    output.value += surface.textContent;
+                const subword = word.subword[j];
+                const surface = subword.surface;
+                const furigana = subword.furigana;
+                if (furigana == null || surface == furigana)
+                    output.value += surface;
                 else
-                    output.value += p + surface.textContent + b + furigana.textContent + e;
+                    output.value += p + surface + b + furigana + e;
             }
         }
         else
         {
-            const surface = word.querySelector("Surface");
-            const furigana = word.querySelector("Furigana");
-            if (furigana === null || surface.textContent == furigana.textContent)
-                    output.value += surface.textContent;
-                else
-                    output.value += p + surface.textContent + b + furigana.textContent + e;
+            const surface = word.surface;
+            const furigana = word.furigana;
+            if (furigana == null || surface == furigana)
+                output.value += surface;
+            else
+                output.value += p + surface + b + furigana + e;
         }
     }
     if (addAtRuby.checked)

@@ -15,16 +15,35 @@ const server = app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 const appid = process.env.APPID;
 
-const url="https://jlp.yahooapis.jp/FuriganaService/V1/furigana";
+const url="https://jlp.yahooapis.jp/FuriganaService/V2/furigana";
 
 app.post('/', async (req, res)=> {
 
+    const param =
+    {
+        "id": "1234-1",
+        "jsonrpc": "2.0",
+        "method": "jlp.furiganaservice.furigana",
+        "params": {
+          "q": req.body.sentence,
+          "grade": req.body.grade
+        }
+    };
     const response = await fetch(url, {
         method: 'POST',
         headers: {
-           'Content-Type': 'application/x-www-form-urlencoded',
+            "Content-Type": "application/json",
+            "User-Agent": "Yahoo AppID: " + appid,
         },
-        body: "appid=" + appid + "&grade=" + req.body.grade + "&sentence=" + encodeURIComponent(req.body.sentence)
+        body:JSON.stringify({
+            "id": "1234-1",
+            "jsonrpc": "2.0",
+            "method": "jlp.furiganaservice.furigana",
+            "params": {
+              "q": req.body.sentence,
+              "grade": req.body.grade
+            }
+        })
     });
     res.send(await response.text());
 });
